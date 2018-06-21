@@ -181,7 +181,7 @@ class CustomModelViewSet(viewsets.ModelViewSet):
 
 #会議情報を参照する。
 #会議新規作成→エンドポイント : /api/conference/, メソッド : POST。speaker_listにはユーザーIDのリストを入れてポストする。
-#会議情報参照→エンドポイント : /api/conference/<conf_ID>/, メソッド : GET
+#会議情報参照→エンドポイント : /api/conference/<conf_ID>/, メソッド : GET。
 class ConferenceViewSet(viewsets.ModelViewSet):
     queryset=ConferenceList.objects.all()
     serializer_class=ConferenceInfoSerializer
@@ -190,6 +190,14 @@ class ConferenceViewSet(viewsets.ModelViewSet):
     #特定の会社の会議情報を閲覧・更新できるのはその会社の人とstaffだけ。
     def get_permissions(self):
         return (IsStaffOrTargetOrg()),
+
+    #自分が呼ばれている会議のみリストアップ。スタッフなら全部見られる。
+    def list(self, request, *args, **kwargs):
+        if request.user.is_staff:
+            return super().list(self, request, *args, **kwargs)
+        else:
+            conferences=request.user.conferences.values()
+            return Response(conferences,status=status.HTTP_200_OK)
     
 
 
@@ -204,7 +212,7 @@ class ConferenceLogViewSet(viewsets.ModelViewSet):
 
 
     #全会議ログを参照できるのはstaffのみ。
-    #特定の会議のログを閲覧・更新できるのはその会社の人とstaffだけ。
+    #特定の会議のログを閲覧・更新できるのはその会議の参加者とstaffだけ。
     def get_permissions(self):
         # allow non-authenticated user to create via POST
         return (IsStaffOrTargetConf()),
