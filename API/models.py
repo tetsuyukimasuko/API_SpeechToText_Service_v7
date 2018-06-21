@@ -72,7 +72,7 @@ class ConferenceList(models.Model):
     #会議IDはuuIDにしたいなぁ
     conf_id=models.UUIDField(default=uuid.uuid4,editable=False,primary_key=True)
     conf_name=models.CharField(max_length=32)
-    speaker_list=models.ManyToManyField(User)
+    speaker_list=models.ManyToManyField(User,related_name='conferences')
     org_id=models.ForeignKey('Organization',on_delete=models.CASCADE)
 
     #外部から参照された場合、会議IDを返す
