@@ -30,7 +30,7 @@ class IsStaffOrTargetDict(permissions.BasePermission):
         org_id=request.parser_context['kwargs']['org_id']
         return str(request.user.org_id) == org_id or request.user.is_staff
  
-#当該会議の開催されている組織に所属するユーザーしかアクセスできない
+#当該会議の開催組織に属するユーザーしかアクセスできない
 class IsStaffOrTargetConf(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.user.is_anonymous:
@@ -39,12 +39,12 @@ class IsStaffOrTargetConf(permissions.BasePermission):
         conf_id=request.parser_context['kwargs']['conf_id']
         try:
             c=ConferenceList.objects.get(pk=conf_id)
-            org_id=c.org_id
+            org=c.org_id
         except:
-            org_id=None
+            org=None
 
         # allow user to list all users if logged in user is staff
-        return request.user.org == org_id or request.user.is_staff
+        return request.user.org==org or request.user.is_staff
 
 #当該組織に所属するユーザーしかアクセスできない
 class IsStaffOrTargetOrg(permissions.BasePermission):
